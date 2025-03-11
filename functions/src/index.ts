@@ -7,13 +7,17 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import { onRequest } from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
-import { importJsonToFirestore } from "./config/importFirestore";
+import {onRequest} from "firebase-functions/v2/https";
+import {importJsonToFirestore} from "./config/importFirestore";
 import * as admin from "firebase-admin";
+import express from "express";
+import {brandsRoutes} from "./routes/brandsRoutes";
+
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
+
+const app = express();
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -24,7 +28,10 @@ if (!admin.apps.length) {
 // load data from json file to firestore script
 importJsonToFirestore();
 
-export const helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
-});
+
+// brands route definitions
+app.use("/brands", brandsRoutes);
+
+
+export const api = onRequest(app);
+

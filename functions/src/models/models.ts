@@ -1,6 +1,6 @@
 export interface Model {
-    id: number;
+    id?: number;
     name: string;
     average_price: number;
-    brand_id: number;
+    brand_id?: number;
 }
