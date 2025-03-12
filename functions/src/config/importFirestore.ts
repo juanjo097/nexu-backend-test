@@ -64,12 +64,9 @@ export async function importJsonToFirestore() {
 
       // Create a list of brands with their average prices
       const brandsList = Object.entries(brandDict).map(([name, id]) => {
-        const prices = brandPrices[id] || [];
         return {
           id: id,
           name: name,
-          average_price: prices.length ?
-            Math.floor(prices.reduce((a, b) => a + b, 0) / prices.length) : 0,
         };
       });
 
