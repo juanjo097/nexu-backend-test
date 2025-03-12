@@ -8,16 +8,13 @@
  */
 
 import {onRequest} from "firebase-functions/v2/https";
-import {importJsonToFirestore} from "./config/importFirestore";
-import * as admin from "firebase-admin";
 import express from "express";
 import {brandsRoutes} from "./routes/brandsRoutes";
 import {modelRoutes} from "./routes/modelsRoutes";
 import cors from "cors";
+import * as dotenv from "dotenv";
 
-
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -30,15 +27,16 @@ app.use(
   })
 );
 
-if (!admin.apps.length) {
-  admin.initializeApp();
-} else {
-  admin.app();
+/* load data from json file to firestore script as the test execute all the
+  * app instance and the import script will be executed in the test environment
+  * so we need to check if the environment is not test
+  * to execute the import script
+*/
+if (process.env.NODE_ENV !== "test") {
+  import("./config/importFirestore.js")
+    .then(({importJsonToFirestore}) => importJsonToFirestore())
+    .catch((err) => console.error("Error during Firestore data import", err));
 }
-
-// load data from json file to firestore script
-importJsonToFirestore();
-
 
 // brands route definitions
 app.use("/brands", brandsRoutes);
@@ -47,3 +45,4 @@ app.use("/models", modelRoutes);
 
 export const api = onRequest(app);
 
+export default app;
