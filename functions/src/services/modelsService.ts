@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import admin from "../config/firestore";
 import {Model} from "../models/models";
 import {logger} from "firebase-functions";
 import {ErrorResponse} from "../models/response";
@@ -7,16 +7,7 @@ import {ErrorResponse} from "../models/response";
  * Service class for models.
  */
 export class ModelsService {
-  private db: FirebaseFirestore.Firestore;
-
-  /**
-   * Constructs a new instance of the BrandsService class.
-   * Initializes the Firestore database connection.
-   */
-  constructor() {
-    this.db = admin.firestore();
-  }
-
+  private db = admin.firestore();
   /**
    * Edits the average price of a model in the database.
    *

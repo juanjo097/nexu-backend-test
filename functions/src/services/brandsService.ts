@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import admin from "../config/firestore";
 import {Brand} from "../models/brands";
 import {Model} from "../models/models";
 import {logger} from "firebase-functions";
@@ -8,15 +8,7 @@ import {ErrorResponse} from "../models/response";
  * Service class for brands.
  */
 export class BrandsService {
-  private db: FirebaseFirestore.Firestore;
-
-  /**
-   * Constructs a new instance of the BrandsService class.
-   * Initializes the Firestore database connection.
-   */
-  constructor() {
-    this.db = admin.firestore();
-  }
+  private db = admin.firestore();
 
   /**
    * Retrieves all brands from the database,
