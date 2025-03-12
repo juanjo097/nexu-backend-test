@@ -12,6 +12,7 @@ import {importJsonToFirestore} from "./config/importFirestore";
 import * as admin from "firebase-admin";
 import express from "express";
 import {brandsRoutes} from "./routes/brandsRoutes";
+import {modelRoutes} from "./routes/modelsRoutes";
 
 
 // Start writing functions
@@ -31,6 +32,7 @@ importJsonToFirestore();
 
 // brands route definitions
 app.use("/brands", brandsRoutes);
+app.use("/models", modelRoutes);
 
 
 export const api = onRequest(app);
