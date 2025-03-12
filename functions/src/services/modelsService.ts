@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
 import {Model} from "../models/models";
 import {logger} from "firebase-functions";
+import {ErrorResponse} from "../models/response";
 
 /**
  * Service class for models.
@@ -28,7 +29,7 @@ export class ModelsService {
   async editAveragePriceModelService(
     modelId: number,
     model: Model
-  ): Promise<Model> {
+  ): Promise<Model | ErrorResponse> {
     try {
       const modelRef = this.db.collection("models").doc(modelId.toString());
       await modelRef.update({average_price: model.average_price});
@@ -36,7 +37,11 @@ export class ModelsService {
       return updatedModel.data() as Model;
     } catch (error) {
       logger.error("Error editing average price of model", error);
-      throw error;
+      return {
+        errorCode: "MODEL_EDIT_FAILED",
+        errorMessage: "An error occurred while edit the Model.",
+        status: 500,
+      };
     }
   }
 
@@ -53,7 +58,7 @@ export class ModelsService {
   async getAllModelsService(
     greaterThan: number,
     lowerThan: number
-  ): Promise<Model[]> {
+  ): Promise<Model[] | ErrorResponse> {
     try {
       let query: FirebaseFirestore.Query = this.db
         .collection("models")
@@ -71,7 +76,11 @@ export class ModelsService {
       return modelsSnapshot.docs.map((doc) => doc.data() as Model);
     } catch (error) {
       logger.error("Error getting models", error);
-      throw error;
+      return {
+        errorCode: "MODEL_GET_FAILED",
+        errorMessage: "An error occurred while getting models filtered.",
+        status: 500,
+      };
     }
   }
 }

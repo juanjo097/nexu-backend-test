@@ -61,7 +61,11 @@ export const createBrand = async (req: Request, res: Response) => {
     if (!validatedBrand) return;
 
     const newBrand = await brandsService.createBrandService(validatedBrand);
-    return res.status(201).send(newBrand);
+    if ("errorCode" in newBrand) {
+      return res.status(newBrand.status).json(newBrand);
+    } else {
+      return res.status(201).json(newBrand);
+    }
   } catch (error) {
     logger.error("Error creating brand", error);
     return res.status(500).send(error);
@@ -87,7 +91,11 @@ export const createModelToBrand = async (req: Request, res: Response) => {
       validatedModel,
       parseInt(id)
     );
-    return res.status(201).send(newModel);
+    if ("errorCode" in newModel) {
+      return res.status(newModel.status).json(newModel);
+    } else {
+      return res.status(201).json(newModel);
+    }
   } catch (error) {
     logger.error("Error creating model", error);
     return res.status(500).send(error);

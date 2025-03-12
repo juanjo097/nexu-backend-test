@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import {Brand} from "../models/brands";
 import {Model} from "../models/models";
 import {logger} from "firebase-functions";
-import { ErrorResponse } from "../models/response";
+import {ErrorResponse} from "../models/response";
 
 /**
  * Service class for brands.
@@ -22,12 +22,12 @@ export class BrandsService {
    * Retrieves all brands from the database,
    *  ordered by their ID in ascending order.
    *
-   * @return {Promise<Brand[]>} A promise that
+   * @return {Promise<Brand[] | ErrorResponse>} A promise that
    * resolves to an array of Brand objects.
    * @throws Will throw an error if
    * there is an issue retrieving the brands from the database.
    */
-  async getAllBrandsService(): Promise<Brand[] | { error: string }> {
+  async getAllBrandsService(): Promise<Brand[] | ErrorResponse> {
     try {
       const brandsSnapshot = await this.db
         .collection("brands")
@@ -58,7 +58,11 @@ export class BrandsService {
       return brands;
     } catch (error) {
       logger.error("Error getting brands", error);
-      return {error: "Error in getting all brands"};
+      return {
+        errorCode: "BRANDS_GET_FAILED",
+        errorMessage: "An error occurred while getting all the brands.",
+        status: 500,
+      };
     }
   }
 
@@ -66,14 +70,14 @@ export class BrandsService {
    * Retrieves all models of a brand from the database.
    *
    * @param {number} brandId The ID of the brand to retrieve models for.
-   * @return {Promise<Model[]>} A promise that
+   * @return {Promise<Model[] | ErrorResponse>} A promise that
    * resolves to an array of Model objects.
    * @throws Will throw an error if
    * there is an issue retrieving the models of the brand from the database.
    */
   async getModelsOfBrandService(
     brandId: number
-  ): Promise<Model[] | { error: string }> {
+  ): Promise<Model[] | ErrorResponse> {
     try {
       const modelsSnapshot = await this.db
         .collection("models")
@@ -83,7 +87,11 @@ export class BrandsService {
       return modelsSnapshot.docs.map((doc) => doc.data() as Model);
     } catch (error) {
       logger.error("Error getting models of brand", error);
-      return {error: "Error getting models of brand"};
+      return {
+        errorCode: "MODELBRANDS_GET_FAILED",
+        errorMessage: "An error occurred while getting models of the brand.",
+        status: 500,
+      };
     }
   }
 
@@ -167,7 +175,7 @@ export class BrandsService {
       if (!modelSnapshot.empty) {
         return {
           errorCode: "MODEL_ALREADY_EXISTS",
-          errorMessage: "A Model with name already exists.",
+          errorMessage: "A Model with this name already exists.",
           status: 400,
         };
       }
