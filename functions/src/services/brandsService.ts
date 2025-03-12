@@ -2,6 +2,7 @@ import * as admin from "firebase-admin";
 import {Brand} from "../models/brands";
 import {Model} from "../models/models";
 import {logger} from "firebase-functions";
+import { ErrorResponse } from "../models/response";
 
 /**
  * Service class for brands.
@@ -26,16 +27,38 @@ export class BrandsService {
    * @throws Will throw an error if
    * there is an issue retrieving the brands from the database.
    */
-  async getAllBrandsService(): Promise<Brand[]> {
+  async getAllBrandsService(): Promise<Brand[] | { error: string }> {
     try {
       const brandsSnapshot = await this.db
         .collection("brands")
         .orderBy("id", "asc")
         .get();
-      return brandsSnapshot.docs.map((doc) => doc.data() as Brand);
+
+      // Calculate the average price of each brand
+      const brands = await Promise.all(
+        brandsSnapshot.docs.map(async (doc) => {
+          const brandData = doc.data() as Brand;
+          const modelsSnapshot = await this.db
+            .collection("models")
+            .where("brand_id", "==", brandData.id)
+            .get();
+
+          const models = modelsSnapshot.docs.map((modelDoc) => modelDoc.data());
+          const totalModels = models.length;
+          const totalPrice = models.reduce(
+            (sum, model) => sum + (model.average_price || 0),
+            0
+          );
+          const averagePrice =
+            totalModels > 0 ? Math.floor(totalPrice / totalModels) : 0;
+
+          return {...brandData, average_price: averagePrice};
+        })
+      );
+      return brands;
     } catch (error) {
       logger.error("Error getting brands", error);
-      throw error;
+      return {error: "Error in getting all brands"};
     }
   }
 
@@ -48,7 +71,9 @@ export class BrandsService {
    * @throws Will throw an error if
    * there is an issue retrieving the models of the brand from the database.
    */
-  async getModelsOfBrandService(brandId: number): Promise<Model[]> {
+  async getModelsOfBrandService(
+    brandId: number
+  ): Promise<Model[] | { error: string }> {
     try {
       const modelsSnapshot = await this.db
         .collection("models")
@@ -58,7 +83,7 @@ export class BrandsService {
       return modelsSnapshot.docs.map((doc) => doc.data() as Model);
     } catch (error) {
       logger.error("Error getting models of brand", error);
-      throw error;
+      return {error: "Error getting models of brand"};
     }
   }
 
@@ -66,13 +91,13 @@ export class BrandsService {
    * Creates a new brand in the database.
    *
    * @param {Brand} brand The brand to create.
-   * @return {Promise<Brand | string>} A promise that
+   * @return {Promise<Brand | ErrorResponse>} A promise that
    * resolves to the created Brand object if successful,
    * or a string message if the brand already exists.
    * @throws Will throw an error if
    * there is an issue creating the brand in the database.
    */
-  async createBrandService(brand: Brand): Promise<Brand | string> {
+  async createBrandService(brand: Brand): Promise<Brand | ErrorResponse> {
     try {
       const brandSnapshot = await this.db
         .collection("brands")
@@ -81,7 +106,11 @@ export class BrandsService {
 
       // Check if brand already exists
       if (!brandSnapshot.empty) {
-        return "Brand already exists";
+        return {
+          errorCode: "BRAND_ALREADY_EXISTS",
+          errorMessage: "A brand with this name already exists.",
+          status: 400,
+        };
       }
 
       const lastBrandSnapshot = await this.db
@@ -90,8 +119,8 @@ export class BrandsService {
         .limit(1)
         .get();
 
-      const lastBrandId = lastBrandSnapshot.empty ?
-        0 : lastBrandSnapshot.docs[0].data().id;
+      const lastBrandId = lastBrandSnapshot.empty ? 0 :
+        lastBrandSnapshot.docs[0].data().id;
       const newBrandId = lastBrandId + 1;
 
       const newBrand = {...brand, id: newBrandId};
@@ -104,7 +133,11 @@ export class BrandsService {
       return newBrand;
     } catch (error) {
       logger.error("Error creating brand", error);
-      throw error;
+      return {
+        errorCode: "BRAND_CREATION_FAILED",
+        errorMessage: "An error occurred while creating the brand.",
+        status: 500,
+      };
     }
   }
 
@@ -113,7 +146,7 @@ export class BrandsService {
    *
    * @param {Model} model The model to create.
    * @param {number} brandId The ID of the brand to create the model for.
-   * @return {Promise<Model | string>} A promise that
+   * @return {Promise<Model | ErrorResponse>} A promise that
    * resolves to the created Model object if successful,
    * or a string message if the model already exists.
    * @throws Will throw an error if
@@ -122,7 +155,7 @@ export class BrandsService {
   async createModelToBrandService(
     model: Model,
     brandId: number
-  ): Promise<Model | string> {
+  ): Promise<Model | ErrorResponse> {
     try {
       const modelSnapshot = await this.db
         .collection("models")
@@ -132,7 +165,11 @@ export class BrandsService {
 
       // Check if model already exists
       if (!modelSnapshot.empty) {
-        return "Model already exists";
+        return {
+          errorCode: "MODEL_ALREADY_EXISTS",
+          errorMessage: "A Model with name already exists.",
+          status: 400,
+        };
       }
 
       const lastModelSnapshot = await this.db
@@ -141,8 +178,8 @@ export class BrandsService {
         .limit(1)
         .get();
 
-      const lastModelId = lastModelSnapshot.empty ?
-        0 : lastModelSnapshot.docs[0].data().id;
+      const lastModelId = lastModelSnapshot.empty ? 0 :
+        lastModelSnapshot.docs[0].data().id;
       const newModelId = lastModelId + 1;
 
       const newModel = {
@@ -160,7 +197,11 @@ export class BrandsService {
       return newModel;
     } catch (error) {
       logger.error("Error creating model", error);
-      throw error;
+      return {
+        errorCode: "MODEL_CREATION_FAILED",
+        errorMessage: "An error occurred while creating the brand.",
+        status: 500,
+      };
     }
   }
 }

@@ -34,12 +34,12 @@ export const getBrands = async (req: Request, res: Response) => {
  */
 export const getModelOfBrand = async (req: Request, res: Response) => {
   try {
-    const brandId = req.params.id;
-    if (!brandId) {
+    const {id} = req.params;
+    if (!id) {
       return res.status(400).send({error: "Brand ID is required"});
     }
     const modelsList = await brandsService.getModelsOfBrandService(
-      parseInt(brandId)
+      parseInt(id)
     );
     return res.status(200).send(modelsList);
   } catch (error) {
@@ -77,15 +77,15 @@ export const createBrand = async (req: Request, res: Response) => {
  */
 export const createModelToBrand = async (req: Request, res: Response) => {
   try {
-    const brandId = req.params.id;
-    if (!brandId) {
+    const {id} = req.params;
+    if (!id) {
       return res.status(400).send({error: "Brand ID is required"});
     }
     const validatedModel = await createModelToBrandValidator(req.body, res);
     if (!validatedModel) return;
     const newModel = await brandsService.createModelToBrandService(
       validatedModel,
-      parseInt(brandId)
+      parseInt(id)
     );
     return res.status(201).send(newModel);
   } catch (error) {
