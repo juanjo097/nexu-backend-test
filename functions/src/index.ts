@@ -13,12 +13,22 @@ import * as admin from "firebase-admin";
 import express from "express";
 import {brandsRoutes} from "./routes/brandsRoutes";
 import {modelRoutes} from "./routes/modelsRoutes";
+import cors from "cors";
 
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
 const app = express();
+app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 if (!admin.apps.length) {
   admin.initializeApp();
