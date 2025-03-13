@@ -153,6 +153,10 @@ To verify that the application is running please go your localhost in this port:
 
 http://localhost:4000/
 
+The application is running and deployed in this route:
+
+https://api-y22dqk2xnq-uc.a.run.app
+
 You will be able to see the emulator overwiew, you can check the Firebase and Functions emulator. If you want to see the database information go to the firebase and the initial data
 will be loaded.  
 
