@@ -76,9 +76,10 @@ The API is built with Express and TypeScript, running on Firebase Cloud Function
     - `/controllers` - _Controllers for handling requests_
     - `/services` - _Business logic_
     - `/routes` - _Express routes_
-    - `/models` - _TypeScript models_
+    - `/models` - _Data models I/O_
     - `/config` - _Firebase and environment config_
-    - `/scripts` - _Initial data scripts_
+    - `/test` - _Tests_
+    - `/validators` - _Input request validators_
 
 
 
