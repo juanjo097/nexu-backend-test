@@ -101,6 +101,24 @@ Go to the project directory
   cd nexu-backend-test
 ```
 
+Install Fribase Tools
+
+```bash
+  npm install -g firebase-tools
+```
+
+Login to Firebase to set the environment
+
+```bash
+  firebase login
+```
+
+Create or using an existing project
+
+```bash
+ firebase use --add
+```
+
 Install dependencies
 
 ```bash
@@ -122,6 +140,12 @@ You can use either of these commands
 or
 ```bash
  npm run serve
+```
+
+Run the tests
+
+```bash
+  npm test
 ```
 
 To verify that the application is running please go your localhost in this port:

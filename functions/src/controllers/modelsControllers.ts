@@ -10,10 +10,12 @@ export const editAveragePriceModel = async (req: Request, res: Response) => {
   try {
     const {id} = req.params;
     if (!id) {
-      return res.status(400).send({error: "Brand ID is required"});
+      return res.status(400).send({error: "Model ID is required"});
     }
     const validatedModel = await editAveragePriceModelValidator(req.body, res);
-    if (!validatedModel) return;
+    if (!validatedModel) {
+      return validatedModel;
+    }
 
     const model = await modelsService.editAveragePriceModelService(
       parseInt(id),
@@ -29,8 +31,6 @@ export const editAveragePriceModel = async (req: Request, res: Response) => {
 export const getModels = async (req: Request, res: Response) => {
   try {
     const {greater, lower} = req.query;
-    console.log(greater);
-    console.log(lower);
     const modelsList = await modelsService.getAllModelsService(
       Number(greater),
       Number(lower)

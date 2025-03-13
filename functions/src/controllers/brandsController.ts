@@ -58,8 +58,9 @@ export const getModelOfBrand = async (req: Request, res: Response) => {
 export const createBrand = async (req: Request, res: Response) => {
   try {
     const validatedBrand = await createBrandValidator(req.body, res);
-    if (!validatedBrand) return;
-
+    if (!validatedBrand) {
+      return validatedBrand;
+    }
     const newBrand = await brandsService.createBrandService(validatedBrand);
     if ("errorCode" in newBrand) {
       return res.status(newBrand.status).json(newBrand);
@@ -86,7 +87,9 @@ export const createModelToBrand = async (req: Request, res: Response) => {
       return res.status(400).send({error: "Brand ID is required"});
     }
     const validatedModel = await createModelToBrandValidator(req.body, res);
-    if (!validatedModel) return;
+    if (!validatedModel) {
+      return validatedModel;
+    }
     const newModel = await brandsService.createModelToBrandService(
       validatedModel,
       parseInt(id)
