@@ -13,7 +13,9 @@ export const editAveragePriceModel = async (req: Request, res: Response) => {
       return res.status(400).send({error: "Model ID is required"});
     }
     const validatedModel = await editAveragePriceModelValidator(req.body, res);
-    if (!validatedModel) return;
+    if (!validatedModel) {
+      return validatedModel;
+    }
 
     const model = await modelsService.editAveragePriceModelService(
       parseInt(id),
