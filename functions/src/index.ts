@@ -8,7 +8,7 @@
  */
 
 import {onRequest} from "firebase-functions/v2/https";
-import express from "express";
+import express, {Request, Response} from "express";
 import {brandsRoutes} from "./routes/brandsRoutes";
 import {modelRoutes} from "./routes/modelsRoutes";
 import cors from "cors";
@@ -39,6 +39,9 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 // brands route definitions
+app.get("/", (req : Request, res : Response) => {
+  res.send("Welcome to the car brands API");
+});
 app.use("/brands", brandsRoutes);
 app.use("/models", modelRoutes);
 
